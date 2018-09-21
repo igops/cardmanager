@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Search</span>
+            </h4>
+            <form id="form_card_search" method="GET" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="series">Series</label>
+                    <input type="text" class="form-control" name="_series" id="series" placeholder="" value="{{ app.request.get('_series') }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="number">Number</label>
+                    <input type="text" class="form-control" name="_number" id="number" placeholder="" value="{{ app.request.get('_number') }}">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="releasedFrom">Released From</label>
+                        <input type="text" class="form-control form-control-sm" name="_releasedFrom" id="releasedFrom" placeholder="2018-01-01 00:00:00" value="{{ app.request.get('_releasedFrom') }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="releasedTo">Released To</label>
+                        <input type="text" class="form-control form-control-sm" name="_releasedTo" id="releasedTo" placeholder="2019-01-01 00:00:00" value="{{ app.request.get('_releasedTo') }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="expiresFrom">Expires From</label>
+                        <input type="text" class="form-control form-control-sm" name="_expiresFrom" id="expiresFrom" placeholder="2018-01-01 00:00:00" value="{{ app.request.get('_expiresFrom') }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="expiresTo">Expires To</label>
+                        <input type="text" class="form-control form-control-sm" name="_expiresTo" id="expiresTo" placeholder="2019-01-01 00:00:00" value="{{ app.request.get('_expiresTo') }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="status">Status</label>
+                    <select class="custom-select d-block w-100" name="_status" id="status">
+                        <option value="">Choose...</option>
+                        <option value="0"{{ app.request.get('_status') == '0' ? ' selected' : ''}}>Active</option>
+                        <option value="1"{{ app.request.get('_status') == '1' ? ' selected' : ''}}>Inactive</option>
+                        <option value="2"{{ app.request.get('_status') == '2' ? ' selected' : ''}}>Expired</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Search</button>
+
+            </form>
+        </div>
+        <div class="col-md-8 order-md-1">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Series</th>
+                    <th scope="col">Number</th>
+                    <th scope="col">Released</th>
+                    <th scope="col">Expires</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for card in cards %}
+                    <tr>
+                        <td>{{ card.series }}</td>
+                        <td>{{ card.number }}</td>
+                        <td>{{ card.releasedAt|date('Y-m-d') }}</td>
+                        <td>{{ card.expiresAt|date('Y-m-d') }}</td>
+                        <td>{{ card.status }}</td>
+                    </tr>
+                {% else %}
+                    <div class="well">{{ 'card.no_cards_found'|trans }}</div>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if cards.haveToPaginate %}
+                <div class="navigation text-center">
+                    {{ pagerfanta(cards, 'twitter_bootstrap3_translated', {routeName: 'cardlist_paginated', routeParams: app.request.query.all}) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2018 Igor Kugaudo</p>
+    </footer>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}š
+    <script>
+        $(function() {
+            $('#form_card_search').submit(function(e) {
+                console.log(window.location.href.split('?')[0].replace(/\/page\/\d+/, '/page/1') + '?' + $('#form_card_search').serialize());
+                window.location.href = window.location.href.split('?')[0].replace(/\/page\/\d+/, '/page/1') + '?' + $('#form_card_search').serialize();
+                return false;
+            });
+        });
+    </script>
+{% endblock %}
